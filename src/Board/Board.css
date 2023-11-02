@@ -1,0 +1,45 @@
+.board {
+  outline: 2px solid rgb(134, 154, 189);
+}
+.display-hidden {
+  display: none;
+}
+
+.display {
+  display: block;
+}
+
+.game-over-message {
+  font-size: 36px;
+  text-align: center;
+  margin-top: 50px;
+  color: red;
+}
+
+
+.row {
+  height: 35px;
+}
+
+.cell {
+  width: 35px;
+  height: 35px;
+  outline: 1px solid rgb(134, 154, 189);
+  display: inline-block;
+}
+
+.cell-green {
+  background-color: green;
+  border-radius: 50%;
+
+}
+
+.cell-red {
+  background-color: red;
+  border-radius: 30%;
+}
+
+.cell-purple {
+  background-color: purple;
+  border-radius: 30%;
+}
