@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   randomIntFromInterval,
   reverseLinkedList,
@@ -55,6 +55,22 @@ const Board = () => {
   const [snakeCells, setSnakeCells] = useState(
     new Set([snake.head.value.cell]),
   );
+  const [highScore, setHighScore] = useState(0);
+  useEffect(() => {
+    const savedHighScore = localStorage.getItem('highScore');
+    if (savedHighScore) {
+      setHighScore(savedHighScore);
+    }
+  }, []);
+
+  // Update high score in local storage whenever it changes
+  useEffect(() => {
+    if (score > highScore) {
+      setHighScore(score);
+      localStorage.setItem('highScore', score);
+    }
+  }, [score]);
+
   // Naively set the starting food cell 5 cells away from the starting snake cell.
   const [foodCell, setFoodCell] = useState(snake.head.value.cell + 5);
   const [direction, setDirection] = useState(Direction.RIGHT);
@@ -87,6 +103,7 @@ const Board = () => {
     if (snakeWillRunIntoItself) return;
     setDirection(newDirection);
   };
+
 
   const moveSnake = () => {
     const currentHeadCoords = {
@@ -188,9 +205,11 @@ const Board = () => {
   };
 
   const [isGameOver, setIsGameOver] = useState(false);
+  const [lastScore, setLastScore] = useState(0);
   const full = isGameOver ? 'display-hidden' : 'display';
   const handleGameOver = () => {
     setIsGameOver(true);
+    setLastScore(score);
     setScore(0);
     const snakeLLStartingValue = getStartingSnakeLLValue(board);
     setSnake(new LinkedList(snakeLLStartingValue));
@@ -199,26 +218,31 @@ const Board = () => {
     setDirection(Direction.RIGHT);
   };
 
+
   return (
-    <div>
-      {isGameOver && <Alert isGameOver={isGameOver} />}
-      <h1>Score: {score}</h1>
-      <div className="board">
-        {board.map((row, rowIdx) => (
-          <div key={rowIdx} className="row">
-            {row.map((cellValue, cellIdx) => {
-              const className = getCellClassName(
-                cellValue,
-                foodCell,
-                foodShouldReverseDirection,
-                snakeCells,
-              );
-              return <div key={cellIdx} className={className}></div>;
-            })}
+    <>
+      {isGameOver && <Alert isGameOver={isGameOver} score={lastScore} highScore={highScore} />}
+      {!isGameOver && (
+        <>
+          <h1>Score: {score}</h1>
+          <div className="board">
+            {board.map((row, rowIdx) => (
+              <div key={rowIdx} className="row">
+                {row.map((cellValue, cellIdx) => {
+                  const className = getCellClassName(
+                    cellValue,
+                    foodCell,
+                    foodShouldReverseDirection,
+                    snakeCells,
+                  );
+                  return <div key={cellIdx} className={className}></div>;
+                })}
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
-    </div>
+        </>
+      )}
+    </>
   );
 };
 
@@ -263,7 +287,7 @@ const getCoordsInDirection = (coords, direction) => {
 };
 
 const isOutOfBounds = (coords, board) => {
-  const {row, col} = coords;
+  const { row, col } = coords;
   if (row < 0 || col < 0) return true;
   if (row >= board.length || col >= board[0].length) return true;
   return false;
@@ -279,8 +303,8 @@ const getDirectionFromKey = key => {
 
 const getNextNodeDirection = (node, currentDirection) => {
   if (node.next === null) return currentDirection;
-  const {row: currentRow, col: currentCol} = node.value;
-  const {row: nextRow, col: nextCol} = node.next.value;
+  const { row: currentRow, col: currentCol } = node.value;
+  const { row: nextRow, col: nextCol } = node.next.value;
   if (nextRow === currentRow && nextCol === currentCol + 1) {
     return Direction.RIGHT;
   }
